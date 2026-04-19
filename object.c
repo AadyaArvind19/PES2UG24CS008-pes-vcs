@@ -87,7 +87,7 @@ int object_write(ObjectType type, const void *data, size_t len, ObjectID *id_out
         return 0;
     }
 
-    // Step 5: Create the shard directory (.pes/objects/XX/)
+    // Step 5: Create the shard directory (.pes/objects/XX/) - sharding prevents huge flat dirs
     char hex[HASH_HEX_SIZE + 1];
     hash_to_hex(id_out, hex);
 
