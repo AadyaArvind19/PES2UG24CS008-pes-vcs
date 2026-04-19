@@ -154,6 +154,7 @@ int object_read(const ObjectID *id, ObjectType *type_out, void **data_out, size_
     fclose(f);
 
     // Step 3: Verify integrity — recompute hash and compare to expected
+    // integrity verified by recomputing hash and comparing to filename
     ObjectID computed;
     compute_hash(buf, (size_t)file_size, &computed);
     if (memcmp(computed.hash, id->hash, HASH_SIZE) != 0) {
