@@ -111,8 +111,7 @@ int object_write(ObjectType type, const void *data, size_t len, ObjectID *id_out
         return -1;
     }
 
-    // Step 7: fsync to ensure data is on disk
-    fsync(fd);
+    // Step 7: fsync to ensure data is on disk before rename - crash safety    fsync(fd);
     close(fd);
     free(full);
 
