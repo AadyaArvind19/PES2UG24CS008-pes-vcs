@@ -98,7 +98,7 @@ int object_write(ObjectType type, const void *data, size_t len, ObjectID *id_out
     // Step 6: Write to a temp file in the same shard dir
     char final_path[512];
     snprintf(final_path, sizeof(final_path), "%s/%.2s/%s", OBJECTS_DIR, hex, hex + 2);
-
+    
     char tmp_path[512];
     snprintf(tmp_path, sizeof(tmp_path), "%s.tmp", final_path);
 
@@ -117,7 +117,7 @@ int object_write(ObjectType type, const void *data, size_t len, ObjectID *id_out
     free(full);
 
     // Step 8: Atomically rename temp file to final path
-    if (rename(tmp_path, final_path) != 0) return -1;
+    if (rename(tmp_path, final_path) != 0) return -1;  // atomic write: temp file renamed to final path
 
     // Step 9: fsync the shard directory to persist the rename
     int dir_fd = open(shard_dir, O_RDONLY);
