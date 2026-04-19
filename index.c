@@ -120,7 +120,7 @@ int index_load(Index *index) {
 
     FILE *f = fopen(INDEX_FILE, "r");
     if (!f) {
-        // No index file yet — that's fine, start with empty index
+        // No index file yet — that's fine, start with empty index (not an error)
         return 0;
     }
 
