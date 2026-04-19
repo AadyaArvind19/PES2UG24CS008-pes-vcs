@@ -111,7 +111,7 @@ static int write_tree_level(IndexEntry **entries, int count, const char *prefix,
         char *slash = strchr(rel_path, '/');
 
         if (!slash) {
-            // It's a file directly at this level
+            // It's a file directly at this level - add as blob entry
             TreeEntry *te = &tree.entries[tree.count];
             te->mode = entries[i]->mode;
             strncpy(te->name, rel_path, sizeof(te->name) - 1);
