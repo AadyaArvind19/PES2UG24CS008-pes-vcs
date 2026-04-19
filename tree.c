@@ -96,7 +96,7 @@ int tree_serialize(const Tree *tree, void **data_out, size_t *len_out) {
 // Forward declaration for object_write (implemented in object.c)
 int object_write(ObjectType type, const void *data, size_t len, ObjectID *id_out);
 
-// Helper: write one level of the tree.
+// Helper: write one level of the tree. Called recursively for subdirectories.
 // entries[] is an array of IndexEntry pointers for files at this prefix depth.
 // prefix is the directory prefix up to this level (e.g., "src/").
 static int write_tree_level(IndexEntry **entries, int count, const char *prefix, ObjectID *id_out) {
