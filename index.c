@@ -176,7 +176,7 @@ int index_save(const Index *index) {
                 sorted.entries[i].path);
     }
 
-    // Flush and sync before rename
+    // Flush and sync before rename - ensures data is safe on disk
     fflush(f);
     fsync(fileno(f));
     fclose(f);
