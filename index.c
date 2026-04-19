@@ -223,7 +223,7 @@ int index_add(Index *index, const char *path) {
     uint32_t mode = S_ISDIR(st.st_mode) ? 0040000 :
                     (st.st_mode & S_IXUSR) ? 0100755 : 0100644;
 
-    // Step 4: Update the index — replace if exists, otherwise add
+    // Step 4: Update the index — replace existing entry or append new one
     IndexEntry *existing = index_find(index, path);
     if (existing) {
         existing->hash = blob_id;
