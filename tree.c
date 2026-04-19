@@ -169,7 +169,7 @@ int tree_from_index(ObjectID *id_out) {
 
     if (index_load(&index) != 0) return -1;
     if (index.count == 0) {
-        // Empty index — write an empty tree
+        // Empty index — write an empty tree object with zero entries
         Tree empty;
         empty.count = 0;
         void *tree_data;
