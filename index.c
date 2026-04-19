@@ -154,7 +154,7 @@ int index_load(Index *index) {
 }
 
 int index_save(const Index *index) {
-    // Sort a copy of the entries
+    // Sort a copy of the entries alphabetically before writing
     Index sorted = *index;
     qsort(sorted.entries, sorted.count, sizeof(IndexEntry), compare_index_entries);
 
