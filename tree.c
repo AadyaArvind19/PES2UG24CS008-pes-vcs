@@ -120,7 +120,7 @@ static int write_tree_level(IndexEntry **entries, int count, const char *prefix,
             tree.count++;
             i++;
         } else {
-            // It's in a subdirectory — collect all entries sharing this subdir
+            // It's in a subdirectory — group all entries sharing this prefix and recurse
             size_t dir_name_len = slash - rel_path;
             char dir_name[256];
             strncpy(dir_name, rel_path, dir_name_len);
