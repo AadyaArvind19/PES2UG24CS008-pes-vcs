@@ -78,7 +78,7 @@ int object_write(ObjectType type, const void *data, size_t len, ObjectID *id_out
     // Step 3: Compute SHA-256 of the full object
     compute_hash(full, full_len, id_out);
 
-    // Step 4: Check for deduplication — if object already exists, skip writing
+    // Step 4: Check for deduplication — same content = same hash = stored only once
     if (object_exists(id_out)) {
         char hex[HASH_HEX_SIZE + 1];
         hash_to_hex(id_out, hex);
