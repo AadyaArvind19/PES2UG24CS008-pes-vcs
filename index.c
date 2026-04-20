@@ -120,22 +120,22 @@ int index_load(Index *index) {
 
     FILE *f = fopen(INDEX_FILE, "r");
     if (!f) {
-        // No index file yet — that's fine, start with empty index (not an error)
+        // No index file yet — that's fine, start with empty index
         return 0;
     }
 
     char hex[HASH_HEX_SIZE + 2]; // extra space
     uint32_t mode;
     uint64_t mtime;
-    uint64_t size;
+    uint32_t size;
     char path[512];
 
     while (index->count < MAX_INDEX_ENTRIES) {
         // Format: <mode> <hex> <mtime> <size> <path>
-        int n = fscanf(f, "%o %64s %llu %llu %511s\n",
+        int n = fscanf(f, "%o %64s %llu %u %511s\n",
                        &mode, hex,
                        (unsigned long long *)&mtime,
-                       (unsigned long long *)&size,
+                       (unsigned int *)&size,
                        path);
         if (n == EOF || n < 5) break;
 
@@ -143,7 +143,7 @@ int index_load(Index *index) {
         e->mode = mode;
         if (hex_to_hash(hex, &e->hash) != 0) continue;
         e->mtime_sec = (uint64_t)mtime;
-        e->size = (uint64_t)size;
+        e->size = (uint32_t)size;
         strncpy(e->path, path, sizeof(e->path) - 1);
         e->path[sizeof(e->path) - 1] = '\0';
         index->count++;
@@ -154,34 +154,28 @@ int index_load(Index *index) {
 }
 
 int index_save(const Index *index) {
-    // Sort a copy of the entries alphabetically before writing
-    Index sorted = *index;
-    qsort(sorted.entries, sorted.count, sizeof(IndexEntry), compare_index_entries);
-
-    // Write to a temp file first
     char tmp_path[256];
     snprintf(tmp_path, sizeof(tmp_path), "%s.tmp", INDEX_FILE);
 
     FILE *f = fopen(tmp_path, "w");
     if (!f) return -1;
 
-    for (int i = 0; i < sorted.count; i++) {
+    for (int i = 0; i < index->count; i++) {
+        const IndexEntry *e = &index->entries[i];
         char hex[HASH_HEX_SIZE + 1];
-        hash_to_hex(&sorted.entries[i].hash, hex);
-        fprintf(f, "%o %s %llu %llu %s\n",
-                sorted.entries[i].mode,
+        hash_to_hex(&e->hash, hex);
+        fprintf(f, "%o %s %llu %u %s\n",
+                e->mode,
                 hex,
-                (unsigned long long)sorted.entries[i].mtime_sec,
-                (unsigned long long)sorted.entries[i].size,
-                sorted.entries[i].path);
+                (unsigned long long)e->mtime_sec,
+                (unsigned int)e->size,
+                e->path);
     }
 
-    // Flush and sync before rename - ensures data is safe on disk
     fflush(f);
     fsync(fileno(f));
     fclose(f);
 
-    // Atomic rename
     return rename(tmp_path, INDEX_FILE);
 }
 
@@ -223,13 +217,13 @@ int index_add(Index *index, const char *path) {
     uint32_t mode = S_ISDIR(st.st_mode) ? 0040000 :
                     (st.st_mode & S_IXUSR) ? 0100755 : 0100644;
 
-    // Step 4: Update the index — replace existing entry or append new one
+    // Step 4: Update the index — replace if exists, otherwise add
     IndexEntry *existing = index_find(index, path);
     if (existing) {
         existing->hash = blob_id;
         existing->mode = mode;
         existing->mtime_sec = (uint64_t)st.st_mtime;
-        existing->size = (uint64_t)st.st_size;
+        existing->size = (uint32_t)st.st_size;
     } else {
         if (index->count >= MAX_INDEX_ENTRIES) {
             fprintf(stderr, "error: index is full\n");
@@ -239,7 +233,7 @@ int index_add(Index *index, const char *path) {
         e->hash = blob_id;
         e->mode = mode;
         e->mtime_sec = (uint64_t)st.st_mtime;
-        e->size = (uint64_t)st.st_size;
+        e->size = (uint32_t)st.st_size;
         strncpy(e->path, path, sizeof(e->path) - 1);
         e->path[sizeof(e->path) - 1] = '\0';
         index->count++;
