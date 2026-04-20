@@ -189,8 +189,7 @@ int commit_create(const char *message, ObjectID *commit_id_out) {
     strncpy(commit.author, pes_author(), sizeof(commit.author) - 1);
     strncpy(commit.message, message, sizeof(commit.message) - 1);
 
-    // Step 3: Read current HEAD as parent (may not exist for first commit)
-    ObjectID parent_id;
+    // Step 3: Detect parent commit - first commit has no parent    ObjectID parent_id;
     if (head_read(&parent_id) == 0) {
         commit.has_parent = 1;
         commit.parent = parent_id;
