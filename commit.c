@@ -219,5 +219,6 @@ int commit_create(const char *message, ObjectID *commit_id_out) {
         return -1;
     }
 
+    // Step 7: Return success to caller
     return 0;
 }
